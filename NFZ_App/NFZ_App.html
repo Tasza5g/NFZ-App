@@ -1,0 +1,263 @@
+<script>
+
+    class Przychodnia{
+
+        constructor(nazwa, miasto, listaPacjentow){
+            this.nazwa = nazwa;
+            this.miasto = miasto;
+            this.listaPacjentow = [];
+
+        }
+    }
+
+    class Pacjent{
+
+        constructor(imie, nazwisko, listaChorob){
+            this.imie = imie;
+            this.nazwisko = nazwisko;
+            this.listaChorob = [];
+        }
+    }
+
+class Controller{
+
+    constructor(){
+
+        let daneJSON = localStorage.getItem("NFZ");
+            let daneOBJ;
+            
+            if(daneJSON == null){
+                daneOBJ = [];
+            }
+            else{
+                daneOBJ = JSON.parse(daneJSON);
+            }
+
+
+        this.listaPrzychodni = daneOBJ;
+    }
+
+    zapiszDane = () =>{
+            let daneJSON = JSON.stringify(this.listaPrzychodni);
+            localStorage.setItem("NFZ", daneJSON);
+        }
+
+
+    dodajPrzychodnie = (nazwa, miasto, listaPacjentow) => {
+        let przychodnia = new Przychodnia(nazwa, miasto, listaPacjentow);
+
+        this.listaPrzychodni.push(przychodnia);
+        console.log("Przychodnia pomyślnie dodana");
+        this.zapiszDane();
+
+    }
+
+    dodajPacjenta = (nazwa, imie, nazwisko, listaChorob) => {
+
+        let znaleziono = false;
+        let pacjent = new Pacjent(imie, nazwisko, listaChorob);
+
+        for(let x in this.listaPrzychodni){
+            if(this.listaPrzychodni[x].nazwa == nazwa){
+                znaleziono = true;
+
+                this.listaPrzychodni[x].listaPacjentow.push(pacjent);
+                console.log("Pacjent pomyślnie dodany");
+                this.zapiszDane();
+            }
+
+            if(znaleziono == false){
+                console.log("Nie ma takiej przychodni");
+            }
+        }
+    }
+
+    pokazPrzychodnie = () => {
+        for(let x of this.listaPrzychodni){
+            console.log(`Nazwa przychodni: ${x.nazwa} Miasto: ${x.miasto}`);
+        }
+    }
+
+    pokazPacjentow = (nazwa) => {
+
+        let znaleziono = false;
+        
+        for(let x in this.listaPrzychodni){
+            if(this.listaPrzychodni[x].nazwa == nazwa){
+                znaleziono = true;
+
+                for(let y of this.listaPrzychodni[x].listaPacjentow){
+                console.log(`Imie: ${y.imie} Nazwisko: ${y.nazwisko}`);
+                }
+            }
+
+            if(znaleziono == false){
+                console.log("Nie ma takiej przychodni");
+            }
+        }
+    }
+
+    dodajChorobe = (nazwa, nazwisko, choroba) => {
+
+        let znaleziono = false;
+        
+
+        for(let x in this.listaPrzychodni){
+            if(this.listaPrzychodni[x].nazwa == nazwa){
+                znaleziono = true;
+
+                for(let y in this.listaPrzychodni[x].listaPacjentow){
+                    if(this.listaPrzychodni[x].listaPacjentow[y].nazwisko == nazwisko){
+                        znaleziono = true;
+
+                        this.listaPrzychodni[x].listaPacjentow[y].listaChorob.push(choroba);
+                        console.log("Chorobe dodano");
+                        this.zapiszDane();
+                    }
+                    
+                    if(znaleziono == false){
+                        console.log("Nie ma takiego pacjenta");
+                    }
+                }
+            }
+
+            if(znaleziono == false){
+                console.log("Nie ma takiej przychodni");
+            }
+        }
+
+    }
+
+    pokazChoroby = (nazwa, nazwisko) => {
+
+        let znaleziono = false;
+
+        for(let x in this.listaPrzychodni){
+            if(this.listaPrzychodni[x].nazwa == nazwa){
+                znaleziono = true;
+
+                for(let y in this.listaPrzychodni[x].listaPacjentow){
+                    if(this.listaPrzychodni[x].listaPacjentow[y].nazwisko == nazwisko){
+                        znaleziono = true;
+
+                        for(let z of this.listaPrzychodni[x].listaPacjentow[y].listaChorob){
+
+                            console.log(`Choroby: ${z}`);
+                            }
+                    }
+                    
+                    if(znaleziono == false){
+                        console.log("Nie ma takiego pacjenta");
+                    }
+                }
+            }
+
+            if(znaleziono == false){
+                console.log("Nie ma takiej przychodni");
+            }
+        }
+
+    }
+
+}
+
+class Panel extends Controller{
+    
+    constructor(nazwaPanelu){
+        super();
+        this.nazwaPanelu = nazwaPanelu;
+        this.menu();
+    }
+
+    menu = () =>{
+
+        while(true){
+
+            let menu = parseInt(prompt(`Witamy w ${this.nazwaPanelu}. Opcje do wyboru: 1 - Przychodnia, 2 - Pacjent, 3 - Koniec`))
+
+            if(menu == 1){
+                let przychodnia = prompt("1 - Dodaj przychodnie, 2 - Dodaj pacjenta do przychodni, 3 - Lista przychodni, 4 - Lista pacjentów w przychodni.");
+
+                if(przychodnia == 1){
+                    let nazwa = prompt("Podaj nazwę nowej przychodni");
+                    let miasto = prompt("Podaj miasto w którym przychodnia się znajduje");
+                    this.dodajPrzychodnie(nazwa, miasto);
+
+
+                }
+
+                else if(przychodnia == 2){
+                    let nazwa = prompt("Podaj nazwę istniejącej przychodni");
+                    let imie = prompt("Podaj imie pacjenta");
+                    let nazwisko = prompt("Podaj nazwisko pacjenta");
+
+                    this.dodajPacjenta(nazwa, imie, nazwisko);
+
+                }
+
+                else if(przychodnia == 3){
+
+                    this.pokazPrzychodnie();
+
+                }
+
+                else if(przychodnia == 4){
+                    let nazwa = prompt("Podaj nazwę istniejącej przychodni");
+
+                    this.pokazPacjentow(nazwa);
+                   
+                } 
+
+                else{
+                    console.log("Nierozpoznana opcja menu");
+                }
+                
+
+            }
+
+            else if(menu == 2){
+                let pacjent = prompt("Opcje do wyboru: 1 - Dodaj chorobę, 2- Lista chorób pacjenta.")
+
+                if(pacjent == 1){
+                    let nazwa = prompt("Podaj nazwę istniejącej przychodni");
+                    let nazwisko = prompt("Podaj nazwisko istniejacego pacjenta")
+                    let choroba = prompt("Nazwa nowej choroby");
+                    
+                    this.dodajChorobe(nazwa, nazwisko, choroba);
+
+                }
+
+                else if(pacjent == 2){
+                    let nazwa = prompt("Podaj nazwę istniejącej przychodni");
+                    let nazwisko = prompt("Podaj nazwisko istniejacego pacjenta");
+                    
+                    this.pokazChoroby(nazwa, nazwisko);
+
+                }
+
+                else{
+                    console.log("Nierozpoznana opcja menu");
+                }
+                
+
+            }
+
+            else if(menu == 3){
+                break;
+            }
+
+            else{
+                console.log("Nierozpoznana opcja menu");
+            }
+
+        }
+    }
+}
+
+
+
+let NFZ = new Panel ("Panelu NFZ");
+
+
+
+</script>
